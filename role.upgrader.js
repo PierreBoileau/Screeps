@@ -19,21 +19,21 @@ var roleUpgrader = {
             if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(creep.room.controller);
             }
-        } else {
-            var bestMiner = Game.getObjectById(creep.memory.bestMinerId);
+        } 
 
-            if(creep.memory.lastBestMinerChoice > 3 || bestMiner == null) {
-                creep.say('recalculating miner');
-                bestMiner = utilities.sortBestMinerForCreep(miners, creep)[0];
+        else{
+            var storageTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 0)
+                });
 
-                creep.memory.bestMinerId = bestMiner.id;
-                creep.memory.lastBestMinerChoice = 0;
-            }
-
-            if( bestMiner.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(bestMiner);
-            }
-            creep.memory.lastBestMinerChoice = creep.memory.lastBestMinerChoice + 1;
+            if(storageTargets.length){
+                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(storageTargets[0]);
+                }
+                else{
+                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
+                }
+            } 
         }
     }
 };
