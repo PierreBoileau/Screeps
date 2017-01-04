@@ -13,6 +13,7 @@ var roleHarvester = {
         }
 
         if(creep.memory.harvesting){
+            
             var bestMiner = utilities.sortBestMinerForCreep(miners, creep)[0];
             creep.say(bestMiner.name);
             if( bestMiner.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -30,7 +31,7 @@ var roleHarvester = {
             if(sourceTargets.length == 0) {
 
                 var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) < i.storeCapacity)
+                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) < i.storeCapacity)
                 });
 
                 targets = sourceTargets.concat(storageTargets);

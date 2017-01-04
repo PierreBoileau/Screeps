@@ -1,3 +1,5 @@
+require('prototype.spawn')();
+
 var utilities = require('utilities');
 
 var roleHarvester = require('role.harvester');
@@ -12,14 +14,16 @@ module.exports.loop = function () {
     var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
     var miners = _.filter(Game.creeps, (creep) => creep.memory.role == 'miner');
 
+    var energy = Game.spawns.Spawn1.room.energyCapacityAvailable;
+
     if(miners.length < 2) {
-        var newName = Game.spawns['Spawn1'].createCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE], undefined, {role: 'miner'});
-    } else if(harvesters.length < 2) {
-        var newName = Game.spawns['Spawn1'].createCreep([CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], undefined, {role: 'harvester'});
+        var newName = Game.spawns['Spawn1'].createCustomCreep(energy, 'miner');
+    } else if(harvesters.length < 3) {
+        var newName = Game.spawns['Spawn1'].createCustomCreep(energy, 'harvester');
     } else if(builders.length < 2) {
-        var newName = Game.spawns['Spawn1'].createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], undefined, {role: 'builder'});
+        var newName = Game.spawns['Spawn1'].createCustomCreep(energy, 'builder');
     } else if(upgraders.length < 2) {
-        var newName = Game.spawns['Spawn1'].createCreep([WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, MOVE], undefined, {role: 'upgrader'}); 
+        var newName = Game.spawns['Spawn1'].createCustomCreep(energy, 'upgrader');
     }
 
     for(var name in Game.creeps) {
@@ -35,6 +39,15 @@ module.exports.loop = function () {
         }
     }
     
+    var towers = Game.rooms.W71N21.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType == STRUCTURE_TOWER
+    });
+    for (let tower of towers){
+        var target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        if (target != undefined) {
+            tower.attack(target);
+        }
+    }
 
     for(var name in Memory.creeps) {
         if(!Game.creeps[name]) {
