@@ -55,7 +55,12 @@ var roleBuilder = {
                     creep.moveTo(target);
                 }
             } else {
-                creep.moveTo(Game.spawns['Spawn1']);
+                let spawn = creep.room.find(FIND_MY_STRUCTURES, {
+                    filter: (s) => (s.structureType == STRUCTURE_SPAWN)
+                })[0];
+                if (!creep.pos.isEqualTo(spawn.pos)){
+                    creep.moveTo(spawn);
+                }
             }
         }
 

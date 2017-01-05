@@ -6,6 +6,7 @@ var roleMiner = require('role.miner');
 var roleClaimer = require('role.claimer');
 var roleHarvester = require('role.harvester');
 var roleLightUpgrader = require('role.lightUpgrader');
+var roleLongDistanceMiner = require('role.longDistanceMiner');
 
 module.exports.loop = function () {
 
@@ -29,6 +30,8 @@ module.exports.loop = function () {
             roleMiner.run(creep);
         } else if(creep.memory.role == 'claimer') {
             roleClaimer.run(creep);
+        } else if(creep.memory.role == 'longDistanceMiner') {
+            roleLongDistanceMiner.run(creep);
         } else if(creep.memory.role == 'harvester') {
             roleHarvester.run(creep);
         } else if(creep.memory.role == 'lightUpgrader'){
@@ -95,20 +98,20 @@ module.exports.loop = function () {
 
             //HARVESTERS
             if (numberOfHarvesters < 2 * numberOfSources){
-                var newName = spawn.createCustomCreep(energy, 'harvester');
+                var newName = spawn.createHarvester(energy);
             }
 
             else if(numberOfBuilders < 2) {
-                var newName = spawn.createCustomCreep(energy, 'builder');
+                var newName = spawn.createBuilder(energy);
             } 
 
             //UPGRADERS réservés aux zones qui disposent d'un STORAGE
             else if(numberOfUpgraders < 1 && numberOfStorage > 0){
                 //UPGRADERS réservés aux zones qui disposent d'un STORAGE
-                var newName = spawn.createCustomCreep(energy, 'upgrader');
+                var newName = spawn.createUpgrader(energy);
             }    
-            else if(numberOfLightUpgraders < 2 * numberOfSources + 2){
-                var newName = spawn.createCustomCreep(energy, 'lightUpgrader');
+            else if(numberOfLightUpgraders < 2 * numberOfSources + 5){
+                var newName = spawn.createLightUpgrader(energy);
             }
         }
 
@@ -140,23 +143,23 @@ module.exports.loop = function () {
             //HAULERS
 
             if(numberOfHaulers < numberOfSources) {
-            var newName = spawn.createCustomCreep(energy, 'hauler');
+            var newName = spawn.createHauler(energy);
             } 
 
             //BUILDERS & REPAIRERS
 
             else if(numberOfBuilders < 2) {
-                var newName = spawn.createCustomCreep(energy, 'builder');
+                var newName = spawn.createBuilder(energy);
             } 
 
             //UPGRADERS
 
             else if(numberOfUpgraders < 1 && numberOfStorage > 0){
                 //UPGRADERS réservés aux zones qui disposent d'un STORAGE
-                var newName = spawn.createCustomCreep(energy, 'upgrader');
+                var newName = spawn.createUpgrader(energy);
             }    
-            else if(numberOfStorage < 1 && numberOfLightUpgraders < 2 * numberOfSources + 2){
-                var newName = spawn.createCustomCreep(energy, 'lightUpgrader');
+            else if(numberOfStorage < 1 && (numberOfLightUpgraders < 2 * numberOfSources + 3)){
+                var newName = spawn.createLightUpgrader(energy);
             }
         }
     }
