@@ -22,12 +22,28 @@ var roleLightUpgrader = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            // find closest source
-            var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            // try to harvest energy, if the source is not in range
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                // move towards the source
-                creep.moveTo(source);
+            var storageTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 0)
+                });
+
+            if(storageTargets.length){
+                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(storageTargets[0]);
+                }
+                else{
+                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
+                }
+            }
+
+            else {
+                if(creep.carry.energy < creep.carryCapacity) {
+                    var sources = creep.room.find(FIND_SOURCES);
+                    var closestSource = creep.pos.findClosestByPath(sources);
+
+                    if (creep.harvest(closestSource) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(closestSource);
+                    }
+                }
             }
         }
     }

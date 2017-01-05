@@ -89,7 +89,7 @@ module.exports.loop = function () {
         var numberOfLightUpgraders = _.sum(creepsInRoom, (c) => c.memory.role == 'lightUpgrader');
 
 
-        //HARVERSTERS réservés aux zones de niveau 1 et 2
+        //comportement zone de niveau inférieur à 3
 
         if (levelController < 3){
 
@@ -98,9 +98,21 @@ module.exports.loop = function () {
                 var newName = spawn.createCustomCreep(energy, 'harvester');
             }
 
+            else if(numberOfBuilders < 2) {
+                var newName = spawn.createCustomCreep(energy, 'builder');
+            } 
+
+            //UPGRADERS réservés aux zones qui disposent d'un STORAGE
+            else if(numberOfUpgraders < 1 && numberOfStorage > 0){
+                //UPGRADERS réservés aux zones qui disposent d'un STORAGE
+                var newName = spawn.createCustomCreep(energy, 'upgrader');
+            }    
+            else if(numberOfLightUpgraders < 2 * numberOfSources + 2){
+                var newName = spawn.createCustomCreep(energy, 'lightUpgrader');
+            }
         }
 
-
+        //comportement zone de niveau égal à 3 et plus
         //MINERS and HAULERS réservés aux zones de niveau 3 et supérieurs
 
         if (levelController > 2) {
@@ -130,23 +142,20 @@ module.exports.loop = function () {
             if(numberOfHaulers < numberOfSources) {
             var newName = spawn.createCustomCreep(energy, 'hauler');
             } 
-        }
 
-        //BUILDERS & REPAIRERS
+            //BUILDERS & REPAIRERS
 
-        if(numberOfBuilders < 2) {
-            var newName = spawn.createCustomCreep(energy, 'builder');
-        } 
+            else if(numberOfBuilders < 2) {
+                var newName = spawn.createCustomCreep(energy, 'builder');
+            } 
 
-        //UPGRADERS réservés aux niveaux 4 qui disposent d'un STORAGE
+            //UPGRADERS
 
-        if(numberOfStorage > 0){
-            if(numberOfUpgraders + numberOfLightUpgraders < numberOfSources){
+            else if(numberOfUpgraders < 1 && numberOfStorage > 0){
+                //UPGRADERS réservés aux zones qui disposent d'un STORAGE
                 var newName = spawn.createCustomCreep(energy, 'upgrader');
-            }
-        }    
-        else {
-            if(numberOfLightUpgraders < 2 * numberOfSources + 3){
+            }    
+            else if(numberOfStorage < 1 && numberOfLightUpgraders < 2 * numberOfSources + 2){
                 var newName = spawn.createCustomCreep(energy, 'lightUpgrader');
             }
         }
