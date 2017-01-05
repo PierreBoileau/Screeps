@@ -7,7 +7,7 @@ var roleClaimer = {
         // go to the room"
 
         if (creep.room.name != creep.memory.target){
-            var exit = creep.room.findExitTo(creep.memory.target);
+            let exit = creep.room.findExitTo(creep.memory.target);
             creep.moveTo(creep.pos.findClosestByRange(exit));
         }
 

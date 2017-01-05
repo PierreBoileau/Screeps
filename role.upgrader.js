@@ -1,9 +1,7 @@
-var utilities = require('utilities');
-
 var roleUpgrader = {
 
     /** @param {Creep} creep **/
-    run: function(creep, miners) {
+    run: function(creep) {
 
         if(creep.memory.upgrading && creep.carry.energy == 0) {
             creep.memory.upgrading = false;
@@ -23,7 +21,7 @@ var roleUpgrader = {
 
         else{
             var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 0)
+                    filter: (i) => ((i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 0)
                 });
 
             if(storageTargets.length){
