@@ -68,7 +68,7 @@ var roleBuilder = {
         else {
 
             var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 0)
+                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 50)
                 });
 
             if(storageTargets.length){

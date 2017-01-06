@@ -1,6 +1,15 @@
 var roleHarvester = {
     // a function to run the logic for this role
     run: function(creep) {
+        
+        //To reallocate a harvester to another room
+        if(creep.memory.target != undefined && creep.room.name != creep.memory.target) {
+            var exit = creep.room.findExitTo(creep.memory.target);
+            creep.moveTo(creep.pos.findClosestByPath(exit));
+            return;
+        }
+
+
         // if creep is bringing energy to the spawn or an extension but has no energy left
         if (creep.carry.energy == 0) {
             // switch state

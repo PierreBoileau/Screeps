@@ -43,8 +43,8 @@ module.exports = function() {
 	StructureSpawn.prototype.createUpgrader = function(energy) {
 		let body = [];
 		let energyUsed = Math.min(energy, 800);
-		let numberOfCarry = Math.floor((energy-50)/250);
-		let numberOfWork = Math.floor((energy-50*(1+numberOfCarry))/100);
+		let numberOfCarry = Math.floor((energyUsed-50)/250);
+		let numberOfWork = Math.floor((energyUsed-50*(1+numberOfCarry))/100);
 		for (let i = 0; i < numberOfWork; i++) {
 			body.push(WORK);
 		}
@@ -82,7 +82,7 @@ module.exports = function() {
 	}
 
   StructureSpawn.prototype.createMiner = function (energy, sourceId) {
-    var energyUsed = Math.min(energy, 650);
+    var energyUsed = Math.min(energy, 550);
 		var numberOfWork = Math.floor((energyUsed-50)/100);
 		var body = [];
 		//We will stick with one MOVE body part
@@ -97,5 +97,8 @@ module.exports = function() {
 		return this.createCreep([CLAIM, MOVE], undefined, {role : 'claimer', target : target});
 	}
 
+	StructureSpawn.prototype.createReserver = function (target) {
+		return this.createCreep([CLAIM, MOVE], undefined, {role : 'reserver', target : target});
+	}
 
 }

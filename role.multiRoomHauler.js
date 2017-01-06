@@ -1,4 +1,4 @@
-var roleHauler = {
+var roleMultiRoomHauler = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
@@ -10,14 +10,20 @@ var roleHauler = {
             creep.memory.hauling = false;
         }
 
-        //How he gets energy
         if(creep.memory.hauling){
             
-            var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 50)
-                });
+            //si il n'est pas dans la bonne room
+            if (creep.room.name!= creep.memory.target){
+                let exit = creep.room.findExitTo(creep.memory.target);
+                creep.moveTo(creep.pos.findClosestByRange(exit));
+            }
 
-            if(storageTargets.length){
+            //si il est dans la bonne room
+            else{
+                var storageTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 0)
+                });
+                if(storageTargets.length){
                 if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(storageTargets[0]);
                 }
@@ -25,9 +31,11 @@ var roleHauler = {
                     creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
                 }
             }
-        }
+            }
+            
 
-        //Where he unloads
+            
+        }
         else if (!creep.memory.hauling){
             var sourceTargets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
@@ -64,4 +72,4 @@ var roleHauler = {
     }
 };
 
-module.exports = roleHauler;
+module.exports = roleMultiRoomHauler;
