@@ -1,3 +1,5 @@
+require('prototype.tower')();
+require('prototype.creep')();
 require('prototype.spawn')();
 var roleHauler = require('role.hauler');
 var roleUpgrader = require('role.upgrader');
@@ -19,31 +21,19 @@ module.exports.loop = function () {
         }
     }
 
-    // Gestion des actions des Creeps
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'hauler') {
-            roleHauler.run(creep);
-        } else if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        } else if(creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        } else if(creep.memory.role == 'miner') {
-            roleMiner.run(creep);
-        } else if(creep.memory.role == 'claimer') {
-            roleClaimer.run(creep);
-        } else if(creep.memory.role == 'longDistanceMiner') {
-            roleLongDistanceMiner.run(creep);
-        } else if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        } else if(creep.memory.role == 'lightUpgrader'){
-            roleLightUpgrader.run(creep);
-        } else if(creep.memory.role == 'reserver'){
-            roleReserver.run(creep);
-        } else if(creep.memory.role == 'multiRoomHauler'){
-            roleMultiRoomHauler.run(creep);
-        }
+    // for each creeps
+    for (let name in Game.creeps) {
+        // run creep logic
+        Game.creeps[name].runRole();
     }
+
+    // find all towers
+    var towers = _.filter(Game.structures, s => s.structureType == STRUCTURE_TOWER);
+    // for each tower
+    for (let tower of towers) {
+        // run tower logic
+        tower.spendEnergy();
+    } 
 
     // Gestion du SPAWN des différents CREEPS selon les SPAWN
 
@@ -63,19 +53,6 @@ module.exports.loop = function () {
                     filter: (i) => (i.structureType == STRUCTURE_STORAGE)
                 });
         let numberOfStorage = storage.length;
-
-        // GESTION DES TOURS
-        var towers = room.find(FIND_STRUCTURES, {
-            filter: (s) => s.structureType == STRUCTURE_TOWER
-        });
-        for (let tower of towers){
-            var target = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-            if (target != undefined) {
-                tower.attack(target);
-            }
-        }
-
-
 
         //DESCRIPTION DES CREEPS
 
@@ -155,7 +132,7 @@ module.exports.loop = function () {
 
             //BUILDERS & REPAIRERS
 
-            else if(numberOfBuilders < 2) {
+            else if(numberOfBuilders < 1) {
                 var newName = spawn.createBuilder(energy);
             } 
 

@@ -20,18 +20,7 @@ var roleUpgrader = {
         } 
 
         else{
-            var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => ((i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 0)
-                });
-
-            if(storageTargets.length){
-                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storageTargets[0]);
-                }
-                else{
-                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
-                }
-            } 
+            creep.getEnergy(false, true, false);
         }
     }
 };

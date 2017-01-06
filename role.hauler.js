@@ -12,19 +12,7 @@ var roleHauler = {
 
         //How he gets energy
         if(creep.memory.hauling){
-            
-            var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 50)
-                });
-
-            if(storageTargets.length){
-                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storageTargets[0]);
-                }
-                else{
-                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
-                }
-            }
+            creep.getEnergy(true, false, false);
         }
 
         //Where he unloads

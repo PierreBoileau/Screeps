@@ -59,29 +59,7 @@ var roleHarvester = {
         
         // if creep is supposed to harvest
         else if (creep.memory.working == false) {
-
-            let storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 0)
-                });
-
-            if(storageTargets.length){
-                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storageTargets[0]);
-                }
-                else{
-                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
-                }
-            }
-
-            else {
-                let sources = creep.room.find(FIND_SOURCES);
-                let closestSource = creep.pos.findClosestByPath(sources);
-
-                if (creep.harvest(closestSource) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(closestSource);
-                }
-            }
-            
+            creep.getEnergy(true, true, true);
         }    
     }
 };

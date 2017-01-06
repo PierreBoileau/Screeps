@@ -1,3 +1,5 @@
+var roleLightUpgrader = require('role.lightUpgrader');
+
 var roleBuilder = {
 
     /** @param {Creep} creep **/
@@ -12,85 +14,36 @@ var roleBuilder = {
 
         //Working part of the builder
 
-        if(creep.memory.building && creep.carry.energy == 0) {
-            creep.memory.building = false;
+        if(creep.memory.working && creep.carry.energy == 0) {
+            creep.memory.working = false;
             creep.memory.buildingTargetId = 'None';
 
         }
-        if(!creep.memory.building && creep.carry.energy == creep.carryCapacity) {
-            creep.memory.building = true;
+        if(!creep.memory.working && creep.carry.energy == creep.carryCapacity) {
+            creep.memory.working = true;
         }
 
         //How the builder works
-        if(creep.memory.building) {
-            if (creep.memory.buildingTargetId = 'None') {
-                var constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
-
-                var damagedStructures = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return ( structure.hits < structure.hitsMax &&
-                        ((structure.structureType == STRUCTURE_WALL && structure.hits < 100000) ||
-                        (structure.structureType != STRUCTURE_WALL)));
-                    }
-                })
-                targets = constructionSites.concat(damagedStructures);
-
-                if(targets.length) {
-                    var closestTarget = creep.pos.findClosestByPath(targets);
-                    if (closestTarget != null) {creep.memory.buildingTargetId = closestTarget.id;}
-                } else {
-                    creep.memory.buildingTargetId = 'None';
+        if (creep.memory.working == true) {
+            // find closest constructionSite
+            var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+            // if one is found
+            if (constructionSite != undefined) {
+                // try to build, if the constructionSite is not in range
+                if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                    // move towards the constructionSite
+                    creep.moveTo(constructionSite);
                 }
             }
-
-            if(creep.memory.buildingTargetId != 'None') {
-                var target = Game.getObjectById(creep.memory.buildingTargetId);
-
-                var error = creep.build(target);
-
-                if(error == ERR_INVALID_TARGET) {
-                    error = creep.repair(target);
-                }
-                if(error == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target);
-                }
-            } else {
-                let spawn = creep.room.find(FIND_MY_STRUCTURES, {
-                    filter: (s) => (s.structureType == STRUCTURE_SPAWN)
-                })[0];
-                if (!creep.pos.isEqualTo(spawn.pos)){
-                    creep.moveTo(spawn);
-                }
+            // if no constructionSite is found
+            else {
+                // go upgrading the controller
+                roleLightUpgrader.run(creep);
             }
         }
-
-        //How the builder gets energy
+        // if creep is supposed to get energy
         else {
-
-            var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && _.sum(i.store) > 50)
-                });
-
-            if(storageTargets.length){
-                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storageTargets[0]);
-                }
-                else{
-                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
-                }
-            }
-
-            else {
-                if(creep.carry.energy < creep.carryCapacity) {
-                    var sources = creep.room.find(FIND_SOURCES);
-                    var closestSource = creep.pos.findClosestByPath(sources);
-
-                    if (creep.harvest(closestSource) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(closestSource);
-                    }
-                }
-            }
-            
+            creep.getEnergy(true, true, true);
         }
     }
 };

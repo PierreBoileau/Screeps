@@ -17,7 +17,7 @@ module.exports = function() {
 		let body = [];
 		//haulers are focused on transporting energy at max speed, so we basically focus on CARRY and MOVE
 		//We will not want more than 10 CARRY parts at the moment, so 10 MOVE as well
-		let energyUsed = Math.min(energy, 1000);
+		let energyUsed = Math.min(energy, 2000);
 		let numberOfCarry = Math.floor(energyUsed/100);
 		//We will equal the number of CARRY body parts with MOVE body parts
 		for (let i = 0; i < numberOfCarry; i++) {
@@ -55,7 +55,7 @@ module.exports = function() {
 
 	StructureSpawn.prototype.createUpgrader = function(energy) {
 		let body = [];
-		let energyUsed = Math.min(energy, 800);
+		let energyUsed = Math.min(energy, 1200);
 		let numberOfCarry = Math.floor((energyUsed-50)/250);
 		let numberOfWork = Math.floor((energyUsed-50*(1+numberOfCarry))/100);
 		for (let i = 0; i < numberOfWork; i++) {
