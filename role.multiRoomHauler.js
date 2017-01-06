@@ -10,63 +10,57 @@ var roleMultiRoomHauler = {
             creep.memory.hauling = false;
         }
 
+        //Si il doit récupérer de l'énergie
         if(creep.memory.hauling){
             
             //si il n'est pas dans la bonne room
-            if (creep.room.name!= creep.memory.target){
+            if (creep.room.name != creep.memory.target){
                 let exit = creep.room.findExitTo(creep.memory.target);
                 creep.moveTo(creep.pos.findClosestByRange(exit));
             }
 
+            // else {
+            //     creep.moveTo(Game.getObjectById(creep.memory.sourceId));
+            // }
+
             //si il est dans la bonne room
             else{
-                var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_CONTAINER && _.sum(i.store) > 0)
+                let containers = Game.getObjectById(creep.memory.sourceId).pos.findInRange(FIND_STRUCTURES, 1, {
+                    filter: s => s.structureType == STRUCTURE_CONTAINER
                 });
-                if(storageTargets.length){
-                if(creep.withdraw(storageTargets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storageTargets[0]);
-                }
-                else{
-                    creep.withdraw(storageTargets[0], RESOURCE_ENERGY);
-                }
-            }
-            }
-            
 
-            
-        }
-        else if (!creep.memory.hauling){
-            var sourceTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) &&
-                            structure.energy < structure.energyCapacity;
+                if (containers.length){
+                    if(creep.withdraw(containers[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
+                        creep.moveTo(containers[0]);
                     }
-            })
-            var targets = sourceTargets;
-            if(sourceTargets.length == 0) {
-
-                var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_STORAGE && _.sum(i.store) < i.storeCapacity)
-                });
-
-                targets = sourceTargets.concat(storageTargets);
+                    else{
+                        creep.withdraw(containers[0], RESOURCE_ENERGY);
+                    }
+                }
+            }
+        }
+        
+        //Si il doit déposer de l'énergie
+        else if (!creep.memory.hauling){
+            
+            //Si il n'est pas dans la bonne room
+            if (creep.room.name != creep.memory.origin){
+                let exit = creep.room.findExitTo(creep.memory.origin);
+                creep.moveTo(creep.pos.findClosestByRange(exit));
             }
 
-            if(targets.length > 0) {
-                
-                var closestTarget = creep.pos.findClosestByPath(targets);
-                if(creep.transfer(closestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(closestTarget);
-                }
-            } 
-            else {
-                let spawn = creep.room.find(FIND_MY_STRUCTURES, {
-                    filter: (structure) => (structure.structureType == STRUCTURE_SPAWN)
+            //Si il est dans la bonne room
+            else{
+                let storageTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (i) => ((i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && _.sum(i.store) < i.storeCapacity)
                 });
-                creep.moveTo(spawn);
-                
 
+                if(storageTargets.length){
+                    var closestTarget = creep.pos.findClosestByPath(storageTargets);
+                    if(creep.transfer(closestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(closestTarget);
+                    }
+                }
             }
         }
     }

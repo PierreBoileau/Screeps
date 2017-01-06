@@ -1,6 +1,6 @@
 module.exports = function() {
 
-	StructureSpawn.prototype.createLongDistanceMiner = function(energy, target) {
+	StructureSpawn.prototype.createLongDistanceMiner = function(energy, target, sourceId) {
 		let body = [];
 		//longDistance_Miners are not very mobile but need to get in place in a relatively short term, therefore MOVE are relatively important and will match the number of WORK.
 		//On the contrary, they do not need to CARRY anything as they will build a storage
@@ -10,7 +10,20 @@ module.exports = function() {
 			body.push(WORK); body.push(MOVE);
 		}
 		body.push(CARRY);
-		return this.createCreep(body, undefined, { role : 'longDistanceMiner', target : target})
+		return this.createCreep(body, undefined, { role : 'longDistanceMiner', target : target, sourceId : sourceId })
+	}
+
+	StructureSpawn.prototype.createMultiRoomHauler = function(energy, target, origin, sourceId) {
+		let body = [];
+		//haulers are focused on transporting energy at max speed, so we basically focus on CARRY and MOVE
+		//We will not want more than 10 CARRY parts at the moment, so 10 MOVE as well
+		let energyUsed = Math.min(energy, 1000);
+		let numberOfCarry = Math.floor(energyUsed/100);
+		//We will equal the number of CARRY body parts with MOVE body parts
+		for (let i = 0; i < numberOfCarry; i++) {
+			body.push(CARRY); body.push(MOVE);
+		}
+		return this.createCreep(body, undefined, { role : 'multiRoomHauler', target : target, origin : origin, sourceId : sourceId});
 	}
 
 

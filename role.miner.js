@@ -21,7 +21,6 @@ var roleMiner = {
             }
         }
         // if creep is on top of the container
-        
     }
 };
 

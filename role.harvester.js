@@ -57,6 +57,7 @@ var roleHarvester = {
             }
         }
         
+        // if creep is supposed to harvest
         else if (creep.memory.working == false) {
 
             let storageTargets = creep.room.find(FIND_STRUCTURES, {

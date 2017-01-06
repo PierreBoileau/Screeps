@@ -165,7 +165,7 @@ module.exports.loop = function () {
                 //UPGRADERS réservés aux zones qui disposent d'un STORAGE
                 var newName = spawn.createUpgrader(energy);
             }    
-            else if(numberOfStorage < 1 && (numberOfLightUpgraders < numberOfSources)){
+            else if(numberOfStorage < 1 && (numberOfLightUpgraders < 2*numberOfSources)){
                 var newName = spawn.createLightUpgrader(energy);
             }
         }
@@ -185,26 +185,31 @@ module.exports.loop = function () {
 
         if(spawn.memory.longDistanceMineRoom != undefined){
             //For every room, the present spawn deals with
-            for (let roomName of spawn.memory.longDistanceMineRoom){
-                
-                //if the controller has no reserver
-                if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 100) && c.memory.target == roomName)) {
-                    var newName = spawn.createReserver(roomName);
-                }
+            for (let roomArray of spawn.memory.longDistanceMineRoom){
+                //roomArray is composed of [roomName, sourceId1, sourceId2 ...]
+                let roomName = roomArray[0];
 
-                let room = Game.rooms[roomName];
-                let longDistanceSources = room.find(FIND_SOURCES);
-                /**for (let longDistanceSource of longDistanceSources) {
-                    var londDistanceSourceId = longDistanceSource.id;
-                    //if the source has no miner
-                    if (!_.some(Game.creeps, c => (c.memory.role == 'longDistanceMiner' && c.ticksToLive > 100) && c.memory.sourceId == londDistanceSourceId)) {
-                        var newName = spawn.createLongDistanceMiner(energy, roomName, longDistanceSourceId);   
+                //if the controller has no reserver
+                if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 200) && c.memory.target == roomName)) {
+                    if(roomName != undefined){
+                        var newName = spawn.createReserver(roomName);
                     }
-                    // if the source has no multiRoomHauler
-                    if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == longDistanceSource)) {
-                        var newName = spawn.createMultiRoomHauler(energy, roomName, 'W72N21', longDistanceSourceId);
+                }
+                
+                if(roomArray.length > 1){
+                    for (var i = 0; i < roomArray.length + 1; i++) {
+                        if(roomArray[i+1] != undefined){
+                            //if the source has no miner
+                            if (!_.some(Game.creeps, c => (c.memory.role == 'longDistanceMiner' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+                                var newName = spawn.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
+                            }
+                            // if the source has no multiRoomHauler
+                            if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+                                var newName = spawn.createMultiRoomHauler(energy, roomName, 'W72N21', roomArray[i+1]);
+                            }
+                        }
                     }
-                }**/
+                }
             }
         }
     }
