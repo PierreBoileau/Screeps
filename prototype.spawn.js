@@ -31,6 +31,43 @@ module.exports = function() {
     	else if(numberOfBuilders < 2) { var newName = this.createBuilder(energy); } 
     	//LIGHT_UPGRADERS
 	  	else if(numberOfLightUpgraders < 2 * numberOfSources + 5){ var newName = this.createLightUpgrader(energy); }
+
+	  	//comportement en extérieur
+	    //CLAIMERS
+    	else if(this.memory.claimRoom != undefined){
+      	var newName = this.createClaimer(this.memory.claimRoom);
+      	if(!(newName < 0)) {
+        	delete this.memory.claimRoom;
+      	}
+    	}
+	    //RESERVERS, LONG_DISTANCE_HARVESTERS
+	    else if(this.memory.longDistanceMineRoom != undefined){
+	      //For every room, the present spawn deals with
+	      for (let roomArray of this.memory.longDistanceMineRoom){
+	        //roomArray is composed of [roomName, sourceId1, sourceId2 ...]
+	        let roomName = roomArray[0];
+	        //RESERVER
+	        if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 200) && c.memory.target == roomName)) {
+	          if(roomName != undefined){
+	            var newName = this.createReserver(roomName);
+	          }
+	        }
+	        if(roomArray.length > 1){
+	          for (var i = 0; i < roomArray.length + 1; i++) {
+	            if(roomArray[i+1] != undefined){
+	              //if the source has no miner
+	              if (!_.some(Game.creeps, c => (c.memory.role == 'longDistanceMiner' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	                var newName = this.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
+	              }
+	 		          // if the source has no multiRoomHauler
+	              if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	                var newName = this.createMultiRoomHauler(energy, roomName, this.room.name , roomArray[i+1]);
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
     }
 
     //comportement zone de niveau égal à 3 et plus
@@ -62,46 +99,49 @@ module.exports = function() {
 	    else if(numberOfUpgraders < 1 && numberOfStorage > 0){ var newName = this.createUpgrader(energy); }   
 	    //Sinon LIGHT_UPGRADERS
 	    else if(numberOfStorage < 1 && (numberOfLightUpgraders < 2*numberOfSources)){ var newName = this.createLightUpgrader(energy); }
-    }
 
-    //comportement en extérieur
-
-    //CLAIMERS
-    if(this.memory.claimRoom != undefined){
-      var newName = this.createClaimer(this.memory.claimRoom);
-      if(!(newName < 0)) {
-        delete this.memory.claimRoom;
-      }
-    } 
-    //RESERVERS, LONG_DISTANCE_HARVESTERS
-    if(this.memory.longDistanceMineRoom != undefined){
-      //For every room, the present spawn deals with
-      for (let roomArray of this.memory.longDistanceMineRoom){
-        //roomArray is composed of [roomName, sourceId1, sourceId2 ...]
-        let roomName = roomArray[0];
-        //RESERVER
-        if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 200) && c.memory.target == roomName)) {
-          if(roomName != undefined){
-            var newName = this.createReserver(roomName);
-          }
-        }
-        if(roomArray.length > 1){
-          for (var i = 0; i < roomArray.length + 1; i++) {
-            if(roomArray[i+1] != undefined){
-              //if the source has no miner
-              if (!_.some(Game.creeps, c => (c.memory.role == 'longDistanceMiner' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
-                var newName = this.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
-              }
- 		          // if the source has no multiRoomHauler
-              if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
-                var newName = this.createMultiRoomHauler(energy, roomName, 'W72N21', roomArray[i+1]);
-              }
-            }
-          }
-        }
-      }
+	    //comportement en extérieur
+	    //CLAIMERS
+    	else if(this.memory.claimRoom != undefined){
+      	var newName = this.createClaimer(this.memory.claimRoom);
+      	if(!(newName < 0)) {
+        	delete this.memory.claimRoom;
+      	}
+    	}
+	    //RESERVERS, LONG_DISTANCE_HARVESTERS
+	    else if(this.memory.longDistanceMineRoom != undefined){
+	      //For every room, the present spawn deals with
+	      for (let roomArray of this.memory.longDistanceMineRoom){
+	        //roomArray is composed of [roomName, sourceId1, sourceId2 ...]
+	        let roomName = roomArray[0];
+	        //RESERVER
+	        if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 200) && c.memory.target == roomName)) {
+	          if(roomName != undefined){
+	            var newName = this.createReserver(roomName);
+	          }
+	        }
+	        if(roomArray.length > 1){
+	          for (var i = 0; i < roomArray.length + 1; i++) {
+	            if(roomArray[i+1] != undefined){
+	              //if the source has no miner
+	              if (!_.some(Game.creeps, c => (c.memory.role == 'longDistanceMiner' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	                var newName = this.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
+	              }
+	 		          // if the source has no multiRoomHauler
+	              if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	                var newName = this.createMultiRoomHauler(energy, roomName, this.room.name , roomArray[i+1]);
+	              }
+	            }
+	          }
+	        }
+	      }
+	    }
 		}
 	}	
+
+	StructureSpawn.prototype.createSoldier = function(target) {
+		return this.createCreep([ATTACK, MOVE], { role : 'soldier', target : target});
+	}
 
 	StructureSpawn.prototype.createLongDistanceMiner = function(energy, target, sourceId) {
 		let body = [];
@@ -119,13 +159,15 @@ module.exports = function() {
 	StructureSpawn.prototype.createMultiRoomHauler = function(energy, target, origin, sourceId) {
 		let body = [];
 		//haulers are focused on transporting energy at max speed, so we basically focus on CARRY and MOVE
-		//We will not want more than 10 CARRY parts at the moment, so 10 MOVE as well
-		let energyUsed = Math.min(energy, 2000);
-		let numberOfCarry = Math.floor(energyUsed/100);
+		//We will not want more than 9 CARRY parts at the moment, so 9 MOVE as well
+		let energyUsed = Math.min(energy, 1200);
+		let numberOfCarryCarryMove = Math.floor(energyUsed/150)-1;
 		//We will equal the number of CARRY body parts with MOVE body parts
-		for (let i = 0; i < numberOfCarry; i++) {
-			body.push(CARRY); body.push(MOVE);
+		for (let i = 0; i < numberOfCarryCarryMove; i++) {
+			body.push(CARRY); body.push(CARRY); body.push(MOVE);
 		}
+		//Then add a little WORK to maintain the road the haulers will drive on
+		body.push(WORK); body.push(MOVE);
 		return this.createCreep(body, undefined, { role : 'multiRoomHauler', target : target, origin : origin, sourceId : sourceId});
 	}
 

@@ -11,24 +11,36 @@ module.exports = function() {
     multiRoomHauler: require('role.multiRoomHauler'),
     reserver: require('role.reserver'),
     upgrader: require('role.upgrader'),
+    soldier: require('role.soldier'),
   };
 
   Creep.prototype.runRole = function () {
     roles[this.memory.role].run(this);
   }
 
+  /** @function
+      @param **/
+  Creep.prototype.repairRoadYouTravelOnIfNecessary = function () {
+    let targetRoads = this.pos.findInRange(FIND_STRUCTURES, 0, {filter: s => s.structureType == STRUCTURE_ROAD && s.hits < s.hitsMax});
+    if(targetRoads.length>0){
+      this.repair(targetRoads[0]);
+    }
+  }
+
+
   /** @function 
       @param {bool} useContainer
       @param {bool} useStorage
-      @param {bool} useSource */
-  Creep.prototype.getEnergy = function (useContainer, useStorage, useSource) {
+      @param {bool} useSource
+      @param {int} priority */
+  Creep.prototype.getEnergy = function (useContainer, useStorage, useSource, priority) {
     /** @type {StructureContainer} */
     let container;
     // if the Creep should look for containers and storages
     if (useContainer && useStorage) {
       // find closest container
       container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: s => (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE) && s.store[RESOURCE_ENERGY] > 0 });
+        filter: s => (s.structureType == STRUCTURE_CONTAINER || s.structureType == STRUCTURE_STORAGE) && s.store[RESOURCE_ENERGY] > priority * 100 });
       // if one was found
       if (container != undefined) {
         // try to withdraw energy, if the container is not in range
@@ -60,7 +72,7 @@ module.exports = function() {
         }
       }
     }
-    // if the Creep should only look for containers
+    // if the Creep should only look for storages
     else if (!useContainer && useStorage) {
       // find closest container
       container = this.pos.findClosestByPath(FIND_STRUCTURES, {

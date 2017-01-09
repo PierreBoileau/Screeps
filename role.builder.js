@@ -1,3 +1,4 @@
+var roleUpgrader = require ('role.upgrader');
 var roleLightUpgrader = require('role.lightUpgrader');
 
 var roleBuilder = {
@@ -38,12 +39,17 @@ var roleBuilder = {
             // if no constructionSite is found
             else {
                 // go upgrading the controller
-                roleLightUpgrader.run(creep);
+                if(creep.room.find(FIND_STRUCTURES, {filter: (i) => i.structureType == STRUCTURE_STORAGE}).length) {
+                    roleUpgrader.run(creep);
+                }
+                else {
+                    roleLightUpgrader.run(creep);
+                }
             }
         }
         // if creep is supposed to get energy
         else {
-            creep.getEnergy(true, true, true);
+            creep.getEnergy(true, true, true, 2);
         }
     }
 };

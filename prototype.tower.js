@@ -20,7 +20,7 @@ module.exports = function() {
 	   		this.heal(alliedTarget);
 	   	}
 	   	// if no available target for either attack or heal is found
-	   	else{
+	   	else if (this.energy > 1/4*this.energyCapacity) { 
 	   		// find closest structure to repair
 	   		repairTarget = this.room.find(FIND_STRUCTURES, {filter: s => s.hits < Math.min(150000, s.hitsMax)});
 	   		// if one is found...

@@ -59,7 +59,7 @@ var roleHarvester = {
         
         // if creep is supposed to harvest
         else if (creep.memory.working == false) {
-            creep.getEnergy(true, true, true);
+            creep.getEnergy(true, true, true, 0);
         }    
     }
 };

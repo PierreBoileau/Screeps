@@ -3,6 +3,13 @@ var roleHauler = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
+        //To reallocate a builder to another room
+        if(creep.memory.target != undefined && creep.room.name != creep.memory.target) {
+            var exit = creep.room.findExitTo(creep.memory.target);
+            creep.moveTo(creep.pos.findClosestByPath(exit));
+            return;
+        }
+
         if(creep.carry.energy == 0) {
             creep.memory.hauling = true;
         }
@@ -12,41 +19,42 @@ var roleHauler = {
 
         //How he gets energy
         if(creep.memory.hauling){
-            creep.getEnergy(true, false, false);
+            creep.getEnergy(true, false, false, 0);
         }
 
         //Where he unloads
         else if (!creep.memory.hauling){
-            var sourceTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_TOWER) &&
-                            structure.energy < structure.energyCapacity;
-                    }
-            })
-            var targets = sourceTargets;
-            if(sourceTargets.length == 0) {
+            // Find empty spawns or extensions
+            var targets = creep.room.find(FIND_STRUCTURES, {
+                filter: (structure) => (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity
+            });
 
-                var storageTargets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (i) => (i.structureType == STRUCTURE_STORAGE && _.sum(i.store) < i.storeCapacity)
+            if (targets.length == 0){
+                // Find empty towers
+                targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => structure.structureType == STRUCTURE_TOWER && structure.energy < 0.75*structure.energyCapacity
                 });
 
-                targets = sourceTargets.concat(storageTargets);
+                if (targets.length == 0){
+                    // Find empty storages
+                    targets = creep.room.find(FIND_STRUCTURES, {
+                        filter: (i) => (i.structureType == STRUCTURE_STORAGE && _.sum(i.store) < i.storeCapacity)
+                    });
+                }
             }
-
+            // Unload if one target is found
             if(targets.length > 0) {
-                
                 var closestTarget = creep.pos.findClosestByPath(targets);
                 if(creep.transfer(closestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(closestTarget);
                 }
             } 
+            // Else go in the garage
             else {
                 let spawn = creep.room.find(FIND_MY_STRUCTURES, {
                     filter: (structure) => (structure.structureType == STRUCTURE_SPAWN)
                 });
                 creep.moveTo(spawn);
-                
-
             }
         }
     }

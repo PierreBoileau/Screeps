@@ -45,12 +45,14 @@ var roleMultiRoomHauler = {
             
             //Si il n'est pas dans la bonne room
             if (creep.room.name != creep.memory.origin){
+                creep.repairRoadYouTravelOnIfNecessary();
                 let exit = creep.room.findExitTo(creep.memory.origin);
                 creep.moveTo(creep.pos.findClosestByRange(exit));
             }
 
             //Si il est dans la bonne room
             else{
+
                 let storageTargets = creep.room.find(FIND_STRUCTURES, {
                     filter: (i) => ((i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && _.sum(i.store) < i.storeCapacity)
                 });
