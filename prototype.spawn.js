@@ -28,9 +28,9 @@ module.exports = function() {
     	//HARVESTERS
     	if (numberOfHarvesters < 2 * numberOfSources){ var newName = this.createHarvester(energy); }
     	//BUILDERS
-    	else if(numberOfBuilders < 2) { var newName = this.createBuilder(energy); } 
+    	else if(numberOfBuilders < 4) { var newName = this.createBuilder(energy); } 
     	//LIGHT_UPGRADERS
-	  	else if(numberOfLightUpgraders < 2 * numberOfSources + 5){ var newName = this.createLightUpgrader(energy); }
+	  	else if(numberOfLightUpgraders < 2 * numberOfSources ){ var newName = this.createLightUpgrader(energy); }
 
 	  	//comportement en extérieur
 	    //CLAIMERS
@@ -60,7 +60,7 @@ module.exports = function() {
 	                var newName = this.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
 	              }
 	 		          // if the source has no multiRoomHauler
-	              if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	              else if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
 	                var newName = this.createMultiRoomHauler(energy, roomName, this.room.name , roomArray[i+1]);
 	              }
 	            }
@@ -92,13 +92,13 @@ module.exports = function() {
 	    //HARVESTERS in case of no Miners
 	    else if (numberOfHarvesters + 2 * numberOfMiners < 2 * numberOfSources){ var newName = this.createHarvester(energy); }         
 	    //HAULERS
-	    else if(numberOfHaulers < numberOfSources) { var newName = this.createHauler(energy); } 
+	    else if(numberOfHaulers < 2) { var newName = this.createHauler(energy); } 
 	    //BUILDERS
-	    else if(numberOfBuilders < 1) { var newName = this.createBuilder(energy); } 
+	    else if(numberOfBuilders < 2) { var newName = this.createBuilder(energy); } 
 	    //UPGRADERS réservés aux zones qui disposent d'un STORAGE
 	    else if(numberOfUpgraders < 1 && numberOfStorage > 0){ var newName = this.createUpgrader(energy); }   
 	    //Sinon LIGHT_UPGRADERS
-	    else if(numberOfStorage < 1 && (numberOfLightUpgraders < 2*numberOfSources)){ var newName = this.createLightUpgrader(energy); }
+	    else if(numberOfStorage < 1 && (numberOfLightUpgraders < numberOfSources)){ var newName = this.createLightUpgrader(energy); }
 
 	    //comportement en extérieur
 	    //CLAIMERS
@@ -115,7 +115,7 @@ module.exports = function() {
 	        //roomArray is composed of [roomName, sourceId1, sourceId2 ...]
 	        let roomName = roomArray[0];
 	        //RESERVER
-	        if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 200) && c.memory.target == roomName)) {
+	        if (!_.some(Game.creeps, c => (c.memory.role == 'reserver' && c.ticksToLive > 100) && c.memory.target == roomName)) {
 	          if(roomName != undefined){
 	            var newName = this.createReserver(roomName);
 	          }
@@ -128,7 +128,7 @@ module.exports = function() {
 	                var newName = this.createLongDistanceMiner(energy, roomName, roomArray[i+1]);   
 	              }
 	 		          // if the source has no multiRoomHauler
-	              if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
+	              else if (!_.some(Game.creeps, c => (c.memory.role == 'multiRoomHauler' && c.ticksToLive > 100) && c.memory.sourceId == roomArray[i+1])) {
 	                var newName = this.createMultiRoomHauler(energy, roomName, this.room.name , roomArray[i+1]);
 	              }
 	            }
@@ -139,8 +139,16 @@ module.exports = function() {
 		}
 	}	
 
+	StructureSpawn.prototype.createHealer = function(target) {
+		return this.createCreep([HEAL, HEAL, HEAL, HEAL, HEAL, HEAL, HEAL, HEAL, MOVE, MOVE, MOVE, MOVE], { role : 'healer', target : target});
+	}
+
+	StructureSpawn.prototype.createTanker = function(target) {
+		return this.createCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], { role: 'tanker', target : target, action : 0});
+	}
+
 	StructureSpawn.prototype.createSoldier = function(target) {
-		return this.createCreep([ATTACK, MOVE], { role : 'soldier', target : target});
+		return this.createCreep([TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, TOUGH, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE, ATTACK, MOVE], { role : 'soldier', target : target});
 	}
 
 	StructureSpawn.prototype.createLongDistanceMiner = function(energy, target, sourceId) {
@@ -159,8 +167,8 @@ module.exports = function() {
 	StructureSpawn.prototype.createMultiRoomHauler = function(energy, target, origin, sourceId) {
 		let body = [];
 		//haulers are focused on transporting energy at max speed, so we basically focus on CARRY and MOVE
-		//We will not want more than 9 CARRY parts at the moment, so 9 MOVE as well
-		let energyUsed = Math.min(energy, 1200);
+		//We will not want more than 20 CARRY parts at the moment, so 11 MOVE and one WORK.
+		let energyUsed = Math.min(energy, 1500);
 		let numberOfCarryCarryMove = Math.floor(energyUsed/150)-1;
 		//We will equal the number of CARRY body parts with MOVE body parts
 		for (let i = 0; i < numberOfCarryCarryMove; i++) {
@@ -175,14 +183,14 @@ module.exports = function() {
 	StructureSpawn.prototype.createHauler = function(energy) {
 		let body = [];
 		//haulers are focused on transporting energy at max speed, so we basically focus on CARRY and MOVE
-		//We will not want more than 14 CARRY parts at the moment, so 14 MOVE as well
-		let energyUsed = Math.min(energy, 1400);
-		let numberOfCarry = Math.floor(energyUsed/100);
-		//We will equal the number of CARRY body parts with MOVE body parts
+		//We will not want more than 14 CARRY parts at the moment, so 7 MOVE as well
+		let energyUsed = Math.min(energy, 1050);
+		let numberOfCarry = Math.floor(energyUsed/150);
+		//We will equal the number of CARRY CARRY body parts with MOVE body parts
 		for (let i = 0; i < numberOfCarry; i++) {
-			body.push(CARRY); body.push(MOVE);
+			body.push(CARRY); body.push(CARRY); body.push(MOVE);
 		}
-		return this.createCreep(body, undefined, { role : 'hauler', target : undefined});
+		return this.createCreep(body, undefined, { role : 'hauler', target : this.room.name });
 	}
 
 	StructureSpawn.prototype.createBuilder = function(energy) {
@@ -200,16 +208,12 @@ module.exports = function() {
 
 	StructureSpawn.prototype.createUpgrader = function(energy) {
 		let body = [];
-		let energyUsed = Math.min(energy, 1200);
-		let numberOfCarry = Math.floor((energyUsed-50)/250);
-		let numberOfWork = Math.floor((energyUsed-50*(1+numberOfCarry))/100);
+		let energyUsed = Math.min(energy, 1500);
+		let numberOfWork = Math.floor((energyUsed-200)/100);
 		for (let i = 0; i < numberOfWork; i++) {
 			body.push(WORK);
 		}
-		for (let i = 0; i < numberOfCarry; i++) {
-			body.push(CARRY);
-		}
-		body.push(MOVE);
+		body.push(MOVE); body.push(CARRY); body.push(CARRY); body.push(MOVE);
 		return this.createCreep(body, undefined, { role : 'upgrader', target : undefined});
 	}
 

@@ -22,7 +22,7 @@ var roleLightUpgrader = {
         }
         // if creep is supposed to harvest energy from source
         else {
-            creep.getEnergy(true, true, true, 2);
+            creep.getEnergy(true, true, true, false, true, 2);
         }
     }
 };

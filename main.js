@@ -1,6 +1,7 @@
 require('prototype.tower')();
 require('prototype.creep')();
 require('prototype.spawn')();
+require('prototype.link')();
 
 module.exports.loop = function () {
 
@@ -24,6 +25,14 @@ module.exports.loop = function () {
         // run tower logic
         tower.spendEnergy();
     } 
+
+    //     // find all links
+    // var links = _.filter(Game.structures, s => s.structureType == STRUCTURE_LINK);
+    // // for each tower
+    // for (let link of links) {
+    //     // run tower logic
+    //     link.run();
+    // } 
 
     // Gestion du SPAWN des différents CREEPS selon les SPAWN
 

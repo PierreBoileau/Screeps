@@ -8,7 +8,7 @@ var roleLongDistanceMiner = {
 
         if (creep.room.name != creep.memory.target){
             let exit = creep.room.findExitTo(creep.memory.target);
-            creep.moveTo(creep.pos.findClosestByRange(exit));
+            creep.moveTo(creep.pos.findClosestByPath(exit));
         }
 
         // when in the room
@@ -20,38 +20,64 @@ var roleLongDistanceMiner = {
             var damagedStructures = creep.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return ( structure.hits < structure.hitsMax &&
-                    (structure.structureType == STRUCTURE_CONTAINER));
+                    structure.structureType == STRUCTURE_CONTAINER);
                 }
             })
             var buildAndRepairTargets = constructionSites.concat(damagedStructures);
 
-            var source = creep.room.find(FIND_SOURCES)[0];
+            var source = Game.getObjectById(creep.memory.sourceId);
+            let containers = source.pos.findInRange(FIND_STRUCTURES, 1, {
+                filter: s => s.structureType == STRUCTURE_CONTAINER
+            });
 
-            //Move to the source
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
+            if(containers.length){
+                var container = containers[0];
+                if (!creep.pos.isEqualTo(container.pos)) {
+                    // harvest source
+                    creep.moveTo(container);
                 }
 
-            //How to get energy
-            else if(creep.carry.energy < creep.carryCapacity) {
-                creep.harvest(source);
+                // if creep is not on top of the container
+                else {
+                    // move towards it
+                    creep.harvest(source);
+                }
+
+                
+                if(containers[0].hits < containers[0].hitsMax){
+                    creep.repair(containers[0]);
+                }
             }
 
-            //Si il y a des trucs à fabriquer/réparer
-            else if(buildAndRepairTargets.length) {
-                let target = buildAndRepairTargets[0];
-                var error = creep.build(target);
-                if(error == ERR_INVALID_TARGET) {
-                    error = creep.repair(target);
+            else {
+                //Move to the source
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(source);
                 }
-                if(error == ERR_NOT_IN_RANGE){
+
+                //How to get energy
+                else if(creep.carry.energy < creep.carryCapacity) {
+                    creep.harvest(source);
+                }
+
+                //Si il y a des trucs à fabriquer/réparer
+                else if(buildAndRepairTargets.length) {
+                    let target = buildAndRepairTargets[0];
+                    var error = creep.build(target);
+                    if(error == ERR_INVALID_TARGET) {
+                        error = creep.repair(target);
+                    }
+                    if(error == ERR_NOT_IN_RANGE){
+                        creep.harvest(source);
+                    }
+                }
+
+                else{
                     creep.harvest(source);
                 }
             }
 
-            else{
-                creep.harvest(source);
-            }
+            
         }
     }
 };

@@ -16,7 +16,7 @@ var roleMultiRoomHauler = {
             //si il n'est pas dans la bonne room
             if (creep.room.name != creep.memory.target){
                 let exit = creep.room.findExitTo(creep.memory.target);
-                creep.moveTo(creep.pos.findClosestByRange(exit));
+                creep.moveTo(creep.pos.findClosestByPath(exit));
             }
 
             // else {
@@ -25,11 +25,22 @@ var roleMultiRoomHauler = {
 
             //si il est dans la bonne room
             else{
+                
+                let droppedRessources = creep.room.find(FIND_DROPPED_ENERGY);
                 let containers = Game.getObjectById(creep.memory.sourceId).pos.findInRange(FIND_STRUCTURES, 1, {
                     filter: s => s.structureType == STRUCTURE_CONTAINER
                 });
 
-                if (containers.length){
+                if (droppedRessources.length){
+                    if(creep.pickup(droppedRessources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
+                        creep.moveTo(droppedRessources[0]);
+                    }
+                    else{
+                        creep.pickup(droppedRessources[0], RESOURCE_ENERGY);
+                    }
+                }
+
+                else if (containers.length){
                     if(creep.withdraw(containers[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE){
                         creep.moveTo(containers[0]);
                     }
@@ -60,6 +71,7 @@ var roleMultiRoomHauler = {
                 if(storageTargets.length){
                     var closestTarget = creep.pos.findClosestByPath(storageTargets);
                     if(creep.transfer(closestTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.repairRoadYouTravelOnIfNecessary();
                         creep.moveTo(closestTarget);
                     }
                 }

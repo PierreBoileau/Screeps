@@ -36,20 +36,37 @@ var roleBuilder = {
                     creep.moveTo(constructionSite);
                 }
             }
-            // if no constructionSite is found
-            else {
-                // go upgrading the controller
-                if(creep.room.find(FIND_STRUCTURES, {filter: (i) => i.structureType == STRUCTURE_STORAGE}).length) {
-                    roleUpgrader.run(creep);
+
+            else{ 
+                // find closest structure to repair
+                let repairTarget = creep.room.find(FIND_STRUCTURES, {filter: s => s.hits < Math.min(75000, s.hitsMax)});
+                // if one is found...
+                if (repairTarget.length) {
+                    //...REPAIR!
+                    if (creep.repair(repairTarget[0]) == ERR_NOT_IN_RANGE) {
+                        // move towards the repairSite
+                        creep.moveTo(repairTarget[0]);
+                    }
+                    else {
+                        creep.repair(repairTarget[0]);
+                    }    
                 }
+                // if no constructionSite is found
                 else {
-                    roleLightUpgrader.run(creep);
+                    // go upgrading the controller
+                    if(creep.room.find(FIND_STRUCTURES, {filter: (i) => i.structureType == STRUCTURE_STORAGE}).length) {
+                        roleUpgrader.run(creep);
+                    }
+                    else {
+                        roleLightUpgrader.run(creep);
+                    }
                 }
             }
+            
         }
         // if creep is supposed to get energy
         else {
-            creep.getEnergy(true, true, true, 2);
+            creep.getEnergy(true, true, true, false, false, 4);
         }
     }
 };

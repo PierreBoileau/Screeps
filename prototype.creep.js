@@ -12,6 +12,8 @@ module.exports = function() {
     reserver: require('role.reserver'),
     upgrader: require('role.upgrader'),
     soldier: require('role.soldier'),
+    healer: require('role.healer'),
+    tanker: require('role.tanker')
   };
 
   Creep.prototype.runRole = function () {
@@ -33,9 +35,46 @@ module.exports = function() {
       @param {bool} useStorage
       @param {bool} useSource
       @param {int} priority */
-  Creep.prototype.getEnergy = function (useContainer, useStorage, useSource, priority) {
-    /** @type {StructureContainer} */
+  Creep.prototype.getEnergy = function (useContainer, useStorage, useSource, useLinkSwitch, useLinkRecever, priority) {
+    
     let container;
+
+    if (useLinkSwitch){
+      // find closest link switch
+      let links = this.room.find(FIND_STRUCTURES, {
+        filter: s => (s.structureType == STRUCTURE_LINK && s.energy > 0 && s.memory.role == 'switch' )});
+      // if one was found
+      if (links.length>0){
+        // try to withdraw energy, if the container is not in range
+        if (this.withdraw(links[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          // move towards it
+          this.moveTo(links[0]);
+        }
+        // when in range, withdraw
+        else {
+          this.withdraw(links[0], RESOURCE_ENERGY);
+        }
+      }
+    }
+
+    if(useLinkRecever){
+      // find closest link recever
+      let links = this.room.find(FIND_STRUCTURES, {
+        filter: s => (s.structureType == STRUCTURE_LINK && s.energy > 0 && s.memory.role == 'recever' )});
+      // if one was found
+      if (links.length>0){
+        // try to withdraw energy, if the container is not in range
+        if (this.withdraw(links[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          // move towards it
+          this.moveTo(links[0]);
+        }
+        // when in range, withdraw
+        else {
+          this.withdraw(links[0], RESOURCE_ENERGY);
+        }
+      }
+    }
+
     // if the Creep should look for containers and storages
     if (useContainer && useStorage) {
       // find closest container

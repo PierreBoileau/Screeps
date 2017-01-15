@@ -10,16 +10,27 @@ var roleHauler = {
             return;
         }
 
-        if(creep.carry.energy == 0) {
+        if( _.sum(creep.carry) == 0) {
             creep.memory.hauling = true;
         }
-        else if(creep.carry.energy == creep.carryCapacity){
+        else if( _.sum(creep.carry) == creep.carryCapacity){
             creep.memory.hauling = false;
         }
 
         //How he gets energy
         if(creep.memory.hauling){
-            creep.getEnergy(true, false, false, 0);
+            if(creep.room.find(FIND_DROPPED_RESOURCES).length>0){
+                let droppedResource = creep.room.find(FIND_DROPPED_RESOURCES)[0];
+                if(creep.pickup(droppedResource) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(droppedResource);
+                }
+                else{
+                    creep.pickup(droppedResource);
+                }
+            }
+            else{
+                creep.getEnergy(true, true, false, true, false, 2);    
+            }            
         }
 
         //Where he unloads

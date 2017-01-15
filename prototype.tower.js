@@ -4,7 +4,7 @@ module.exports = function() {
 	StructureTower.prototype.spendEnergy = function () {
 
 	  // find closest hostile creep
-	  let enemyTarget = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+	  let enemyTarget = this.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {filter : (c) => c.owner.username != 'ANB'});
 	 	// if one is found...
 	 	if (enemyTarget != undefined) {
 	    // ...FIRE!
@@ -22,11 +22,23 @@ module.exports = function() {
 	   	// if no available target for either attack or heal is found
 	   	else if (this.energy > 1/4*this.energyCapacity) { 
 	   		// find closest structure to repair
-	   		repairTarget = this.room.find(FIND_STRUCTURES, {filter: s => s.hits < Math.min(150000, s.hitsMax)});
+	   		repairTarget = this.room.find(FIND_STRUCTURES, {filter: s => s.hits < Math.min(75000, s.hitsMax)});
 	   		// if one is found...
 	   		if (repairTarget.length) {
 	   			//...REPAIR!
-	   			this.repair(repairTarget[0]);
+	   			function compare(s,t){
+	   				let sHitsMax;
+	   				let tHitsMax;
+	   				if(s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART ){ sHitsMax = 75000;}
+	   				else{ sHitsMax = s.hitsMax;}
+	   				if(t.structureType == STRUCTURE_WALL || t.structureType == STRUCTURE_RAMPART ){ tHitsMax = 75000;}
+	   				else{ tHitsMax = t.hitsMax;}
+	   				if ( s.hits/sHitsMax < t.hits/tHitsMax) {return -1;}
+	   				else if ( s.hits/sHitsMax == t.hits/tHitsMax ) {return 0;}
+	   				else { return 1; }
+	   			}
+	   			let repairTargetSorted = repairTarget.sort(compare);
+	   			this.repair(repairTargetSorted[0]);
 	   		}
 	   	}
 	  }
